@@ -1,10 +1,13 @@
-ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_VERSION
 
 FROM ubuntu:${UBUNTU_VERSION}
 
-ARG _PY_SUFFIX=3
-ARG PYTHON=python${_PY_SUFFIX}
-ARG PIP=pip${_PY_SUFFIX}
+# Install database management system : postgreSQL, MondoDB
+ARG DBMS
+
+ARG PYTHON_VERSION
+ARG PYTHON=python${PYTHON_VERSION}
+ARG PIP=pip${PYTHON_VERSION}
 
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
@@ -39,12 +42,10 @@ RUN ${PIP} --no-cache-dir install --upgrade \
 # Some TF tools expect a "python" binary
 RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 
-RUN ${PIP} install flask
+RUN ${PIP} install ${DBMS}
+
+#ARG PLATFORM
 
 ENV WORKDIR=/usr/src/app
 
 WORKDIR ${WORKDIR}
-
-COPY ./hello.py /usr/src/app
-
-#CMD 

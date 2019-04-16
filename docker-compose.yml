@@ -1,5 +1,85 @@
-version: "2.3"
+version: "3.2"
 
 services:
-  flask:
-    image:
+  webapp:
+    container_name: webapp
+    image: webapp:django
+    build:
+      context: ./
+      dockerfile: web.Dockerfile
+      args:
+        - PYTHON_VERSION=3
+        - UBUNTU_VERSION=18.04
+        - USER=django
+        - WEB_FRAMEWORK=django
+    command: tail -F anything
+    depends_on:
+      - webapp-db
+    ports:
+      - "8080:8080"
+    networks:
+      frontend:
+        aliases:
+          - front
+      backend:
+        aliases:
+          - front
+    restart: always
+    volumes:
+      - type: volume
+        source: conf
+        target: /home/django
+        volume:
+          nocopy: true
+      - type: volume
+        source: database
+        target: /home/django/data
+        volume:
+          nocopy: true
+      - type: volume
+        source: logs
+        target: /home/django/logs
+        volume:
+          nocopy: true
+
+  webapp-db:
+    container_name: webapp_db
+    image: webapp_db:postgres
+    build:
+      context: ./
+      dockerfile: db.Dockerfile
+      args:
+      - PYTHON_VERSION=3
+      - UBUNTU_VERSION=16.04
+      - DBMS=postgres # or pymongo
+#      - PLATFORM: "AWS" # or GCP
+    command: tail -F anything
+    networks:
+      backend:
+        aliases:
+          - database
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: web_app_db
+    volumes:
+      - type: volume
+        source: database
+        target: /var/lib/postgres/data
+        volume:
+          nocopy: true
+      - type: volume
+        source: models
+        target: /usr/src/app/models
+        volume:
+          nocopy: true
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  database:
+  conf:
+  logs:
+  models:
