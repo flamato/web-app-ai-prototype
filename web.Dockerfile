@@ -24,6 +24,18 @@ RUN apt-get update --fix-missing && \
 # See http://bugs.python.org/issue19846
 ENV LANG C.UTF-8
 
+# Add a non-root user
+ARG USER
+
+ENV USER=${USER}
+
+ENV HOME /home/${USER}
+
+WORKDIR ${HOME}
+
+RUN adduser --shell /bin/bash --disabled-password --gecos "" ${USER}
+
+# Install python
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
     ${PYTHON} \
@@ -43,10 +55,11 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 ARG WEB_FRAMEWORK=django
 RUN ${PIP} install ${WEB_FRAMEWORK}
 
-ENV WORKDIR=/usr/src/app
+RUN apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends \
+    x11-apps && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR ${WORKDIR}
-
-COPY ./hello.py /usr/src/app
-
-#CMD
+# RUN all commands below as 'django' user
+USER ${USER}

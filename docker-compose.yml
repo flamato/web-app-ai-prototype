@@ -23,8 +23,10 @@ services:
           - front
       backend:
         aliases:
-          - front
+          - back
     restart: always
+    environment:
+      - DISPLAY
     volumes:
       - type: volume
         source: conf
@@ -41,6 +43,10 @@ services:
         target: /home/django/logs
         volume:
           nocopy: true
+      - type: bind
+        source: $HOME/.Xauthority
+        target: /home/django/.Xauthority
+
 
   webapp-db:
     container_name: webapp_db
