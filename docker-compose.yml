@@ -16,7 +16,7 @@ services:
     depends_on:
       - webapp-db
     ports:
-      - "8080:8080"
+      - "8000:8000"
     networks:
       frontend:
         aliases:
@@ -26,6 +26,7 @@ services:
           - back
     restart: always
     environment:
+      - ALLOWED_HOSTS='192.168.0.24'
       - DISPLAY
     volumes:
       - type: volume
@@ -46,6 +47,9 @@ services:
       - type: bind
         source: $HOME/.Xauthority
         target: /home/django/.Xauthority
+      - type: bind
+        source: ./webapp
+        target: /usr/src/app/
 
 
   webapp-db:

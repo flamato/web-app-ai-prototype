@@ -61,5 +61,16 @@ RUN apt-get update --fix-missing && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /usr/src/app
+
+COPY ./webapp /usr/src/app
+
+WORKDIR /usr/src/app/
+
+# Allow PYTHON/DJANGO to finds apps
+ENV PYTHONPATH="/usr/src/app/webapp/apps/"
+
 # RUN all commands below as 'django' user
 USER ${USER}
+
+#ENTRYPOINT ["python3", "manage.py", "runserver"]
